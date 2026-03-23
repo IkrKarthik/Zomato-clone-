@@ -1,11 +1,37 @@
 document.addEventListener('DOMContentLoaded', function () {
 
+    const form = document.querySelector('.search-box');
+    const searchInput = document.querySelector('input[name="q"]');
+
+
+    form.addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        const food = document.querySelector('input[name="q"]').value.trim();
+        const city = document.getElementById('city').value.trim();
+
+        if (!food) return;
+
+        try {
+            const res = await fetch(`http://localhost:5000/search?food=${encodeURIComponent(food)}&city=${encodeURIComponent(city)}`);
+            const data = await res.json();
+
+            if (data.url) {
+                window.open(data.url, "_blank");
+            } else {
+                alert("No link found for that search.");
+            }
+        } catch (err) {
+            console.error(err);
+            alert("Something went wrong with the backend.");
+        }
+    });
+
     /* ===== SEARCH BUTTON RIPPLE EFFECT ===== */
     const searchBtn = document.querySelector('.search-box button');
     if (searchBtn) {
         searchBtn.addEventListener('click', function (e) {
-            const input = document.querySelector('.search-box input');
-            const query = input ? input.value.trim() : '';
+            const query = searchInput.value.trim();
 
             createRipple(e, searchBtn);
 
@@ -134,20 +160,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    /* ===== ENTER KEY TRIGGERS SEARCH ===== */
-    const searchInput = document.querySelector('.search-box input');
-    const form = document.querySelector('.search-box');
 
-    if (form) {
-        form.addEventListener('submit', function () {
-            const input = form.querySelector('input');
-            let value = input.value.trim();
-
-            if (value && !value.includes("zomato")) {
-                input.value = value + " near me zomato";
-            }
-        });
-    }
     if (searchInput) {
         searchInput.addEventListener('keydown', function (e) {
             if (e.key === 'Enter') {
